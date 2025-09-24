@@ -169,8 +169,8 @@ if st.button("Esegui Query"):
                 )
             with col_meta:
                 st.markdown(f"### Top {i+1}")
-                st.write(f"**Classe:** {title}")
-                st.write(f"**Similarità:** {sim:.2f}")
-                st.write(f"**File:** {os.path.basename(img_path) if img_path else 'N/A'}")
+                st.markdown(f"<big>**Classe:** {title}</big>", unsafe_allow_html=True)
+                st.markdown(f"<big>**Similarità:** {sim:.2f}</big>", unsafe_allow_html=True)
+                st.markdown(f"<big>**File:** {os.path.basename(img_path) if img_path else 'N/A'}</big>", unsafe_allow_html=True)
 
             st.markdown("---")  # separatore tra i risultati
