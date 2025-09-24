@@ -125,7 +125,11 @@ st.set_page_config(page_title="IR Retrieval Demo", layout="wide")
 st.title("IR Image Classification System")
 
 # Scelta immagine
-idx = st.selectbox("Seleziona un'immagine di test:", range(len(TEST_PATHS)))
+options = [f"{i} - {CLASSES[label]}" for i, label in enumerate(TEST_LABELS)]
+idx = st.selectbox("Seleziona un'immagine di test:", options, index=0)
+
+# Recupera indice reale dalla stringa selezionata
+idx = int(idx.split(" - ")[0])
 sel_path = TEST_PATHS[idx]
 sel_label = TEST_LABELS[idx]
 
@@ -143,7 +147,6 @@ if st.button("Esegui Query"):
     if not results["ids"]:
         st.warning("⚠️ Nessun risultato trovato. Hai popolato ChromaDB?")
     else:
-        cols = st.columns(5)
         for i, (md, dist) in enumerate(zip(results["metadatas"][0], results["distances"][0])):  # type: ignore
             label_idx = md.get('label', '?')
             if isinstance(label_idx, int) and 0 <= label_idx < len(CLASSES):
@@ -156,9 +159,18 @@ if st.button("Esegui Query"):
             img_path = fix_path(raw_path) if raw_path else None
 
             sim = 1 - dist
-            with cols[i % 5]:
-                st.markdown(f"**Top {i+1}**")
-                st.write(f"Classe: {title}")
-                st.write(f"Similarità: {sim:.2f}")
-                st.image(img_path if img_path and os.path.exists(img_path) else "https://via.placeholder.com/224",
-                         width=150)
+
+            # Layout a 2 colonne: immagine a sinistra, info a destra
+            col_img, col_meta = st.columns([1, 2])
+            with col_img:
+                st.image(
+                    img_path if img_path and os.path.exists(img_path) else "https://via.placeholder.com/224",
+                    width=200,
+                )
+            with col_meta:
+                st.markdown(f"### Top {i+1}")
+                st.write(f"**Classe:** {title}")
+                st.write(f"**Similarità:** {sim:.2f}")
+                st.write(f"**File:** {os.path.basename(img_path) if img_path else 'N/A'}")
+
+            st.markdown("---")  # separatore tra i risultati
